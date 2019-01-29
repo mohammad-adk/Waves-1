@@ -86,7 +86,7 @@ class AddressActor(
           activeOrders += o.id() -> lo
           reserve(lo)
           latestOrderTs = latestOrderTs.max(lo.order.timestamp)
-          storeEvent(QueueEvent.Placed(o)).pipeTo(sender())
+          storeEvent(QueueEvent.Placed(o)).map(_ => OrderAccepted(o)).pipeTo(sender())
         case Left(error) =>
           sender() ! OrderRejected(error)
       }
@@ -148,7 +148,7 @@ class AddressActor(
       updateTimestamp(submitted.order.timestamp)
       release(submitted.order.id())
       handleOrderAdded(submitted)
-    case e @ OrderExecuted(submitted, counter) =>
+    case e @ OrderExecuted(submitted, counter, _) =>
       log.trace(s"OrderExecuted(${submitted.order.id()}, ${counter.order.id()}), amount = ${e.executedAmount}")
       handleOrderExecuted(e.submittedRemaining)
       handleOrderExecuted(e.counterRemaining)

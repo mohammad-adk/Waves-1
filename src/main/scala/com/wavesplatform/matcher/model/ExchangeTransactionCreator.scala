@@ -22,7 +22,7 @@ class ExchangeTransactionCreator(blockchain: Blockchain, matcherPrivateKey: Priv
   }
 
   def createTransaction(submitted: LimitOrder, counter: LimitOrder, timestamp: Long): Either[ValidationError, ExchangeTransaction] = {
-    val executedAmount    = OrderExecuted(submitted, counter).executedAmount
+    val executedAmount    = OrderExecuted.executedAmount(submitted, counter)
     val price             = counter.price
     val (buy, sell)       = Order.splitByType(submitted.order, counter.order)
     val (buyFee, sellFee) = calculateMatcherFee(buy, sell, executedAmount)

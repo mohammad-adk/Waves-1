@@ -485,7 +485,7 @@ case class MatcherApiRoute(assetPairBuilder: AssetPairBuilder,
     ))
   def orderBookDelete: Route = (path("orderbook" / AssetPairPM) & delete & withAuth) { p =>
     withAssetPair(p) { pair =>
-      complete(storeEvent(QueueEvent.OrderBookDeleted(pair)))
+      complete(storeEvent(QueueEvent.OrderBookDeleted(pair)).map(_ => StatusCodes.Accepted))
     }
   }
 

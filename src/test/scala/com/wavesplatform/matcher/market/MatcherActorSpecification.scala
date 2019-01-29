@@ -72,7 +72,7 @@ class MatcherActorSpecification
           TestActorRef(
             new MatcherActor(
               matcherSettings,
-              (_, _, _) => (),
+              (_, _) => (),
               ob,
               (_, _) => Props(new FailAtStartActor(pair)),
               blockchain.assetDescription
@@ -185,7 +185,7 @@ class MatcherActorSpecification
       TestActorRef(
         new MatcherActor(
           matcherSettings.copy(snapshotsInterval = 17),
-          (_, _, _) => (),
+          (_, _) => (),
           emptyOrderBookRefs,
           (assetPair, _) => {
             val idx = assetPairs.indexOf(assetPair)
@@ -227,7 +227,7 @@ class MatcherActorSpecification
       TestActorRef(
         new MatcherActor(
           matcherSettings,
-          (_, _, _) => (),
+          (_, _) => (),
           ob,
           (assetPair, matcher) =>
             OrderBookActor.props(matcher, TestProbe().ref, assetPair, _ => {}, _ => {}, _ => {}, matcherSettings, txFactory, ntpTime),

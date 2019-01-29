@@ -136,8 +136,8 @@ object Events {
 
   sealed trait Event
 
-  case class OrderExecuted(submitted: LimitOrder, counter: LimitOrder) extends Event {
-    def executedAmount: Long = math.min(submitted.executionAmount(counter), counter.amountOfAmountAsset)
+  case class OrderExecuted(submitted: LimitOrder, counter: LimitOrder, timestamp: Long) extends Event {
+    lazy val executedAmount: Long = OrderExecuted.executedAmount(submitted, counter)
 
     def counterRemainingAmount: Long = math.max(counter.amount - executedAmount, 0)
     def counterExecutedFee: Long     = LimitOrder.getPartialFee(counter.order.matcherFee, counter.order.amount, executedAmount)
@@ -148,6 +148,11 @@ object Events {
     def submittedExecutedFee: Long     = LimitOrder.getPartialFee(submitted.order.matcherFee, submitted.order.amount, executedAmount)
     def submittedRemainingFee: Long    = math.max(submitted.fee - submittedExecutedFee, 0)
     def submittedRemaining: LimitOrder = submitted.partial(amount = submittedRemainingAmount, fee = submittedRemainingFee)
+  }
+
+  object OrderExecuted {
+    def executedAmount(submitted: LimitOrder, counter: LimitOrder): Long =
+      math.min(submitted.executionAmount(counter), counter.amountOfAmountAsset)
   }
 
   case class OrderAdded(order: LimitOrder) extends Event

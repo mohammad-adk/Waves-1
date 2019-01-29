@@ -41,7 +41,7 @@ class AddressDirectory(portfolio: Address => Portfolio, storeEvent: StoreEvent, 
 
     case e @ Events.OrderAdded(lo) =>
       forward(lo.order.sender, e)
-    case e @ Events.OrderExecuted(submitted, counter) =>
+    case e @ Events.OrderExecuted(submitted, counter, _) =>
       forward(submitted.order.sender, e)
       forward(counter.order.sender, e)
     case e @ Events.OrderCanceled(lo, _) =>

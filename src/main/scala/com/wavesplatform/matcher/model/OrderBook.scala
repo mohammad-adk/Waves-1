@@ -38,6 +38,7 @@ class OrderBook private (private[OrderBook] val bids: OrderBook.Side, private[Or
     }).reverse
 
   def snapshot: Snapshot = Snapshot(bids.aggregated.toSeq, asks.aggregated.toSeq)
+  override def toString  = s"""{"bids":${formatSide(bids)},"asks":${formatSide(asks)}}"""
 }
 
 object OrderBook {
@@ -90,7 +91,7 @@ object OrderBook {
         counterSide.removeBest()
         doMatch(eventTs, canMatch, submitted, prevEvents :+ OrderCanceled(counter, false), submittedSide, counterSide)
       } else {
-        val x = OrderExecuted(submitted, counter)
+        val x = OrderExecuted(submitted, counter, eventTs)
 
         require(
           !(x.counterRemaining.isValid && x.submittedRemaining.isValid),
@@ -113,6 +114,11 @@ object OrderBook {
         }
       }
   }
+
+  private def formatSide(side: Side) =
+    side
+      .map { case (price, level) => s"$price:${level.map(lo => s""""${lo.order.id()}"""").mkString("[", ",", "]")}" }
+      .mkString("{", ",", "}")
 
   val bidsOrdering: Ordering[Long] = (x: Long, y: Long) => -Ordering.Long.compare(x, y)
   val asksOrdering: Ordering[Long] = (x: Long, y: Long) => Ordering.Long.compare(x, y)

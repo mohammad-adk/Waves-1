@@ -8,6 +8,7 @@ import com.wavesplatform.NTPTime
 import com.wavesplatform.OrderOps._
 import com.wavesplatform.matcher.MatcherTestData
 import com.wavesplatform.matcher.api.{AlreadyProcessed, OrderAccepted}
+import com.wavesplatform.matcher.fixtures.RestartableActor
 import com.wavesplatform.matcher.fixtures.RestartableActor.RestartActor
 import com.wavesplatform.matcher.market.MatcherActor.SaveSnapshot
 import com.wavesplatform.matcher.market.OrderBookActor._
@@ -41,14 +42,14 @@ class OrderBookActorSpecification extends MatcherSpec("OrderBookActor") with NTP
       Props(
         new OrderBookActor(
           testActor,
-          TestProbe().ref,
+          testActor,
           pair,
           update(pair),
           p => Option(md.get(p)),
           _ => {},
           txFactory,
           ntpTime
-        )))
+        ) with RestartableActor))
 
     expectMsg(OrderBookSnapshotUpdated(pair, -1))
 

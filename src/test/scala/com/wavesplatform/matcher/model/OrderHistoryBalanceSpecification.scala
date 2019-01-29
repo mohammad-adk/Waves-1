@@ -903,4 +903,8 @@ private object OrderHistoryBalanceSpecification {
     def orderStatus(orderId: ByteStr): OrderStatus =
       askAddressActor[OrderStatus](ref, AddressActor.GetOrderStatus(orderId))
   }
+
+  private implicit class OrderExecutedExt(val oe: OrderExecuted.type) extends AnyVal {
+    def apply(submitted: LimitOrder, counter: LimitOrder): OrderExecuted = OrderExecuted(submitted, counter, submitted.order.timestamp)
+  }
 }
