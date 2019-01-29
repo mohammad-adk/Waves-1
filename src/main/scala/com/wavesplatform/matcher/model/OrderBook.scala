@@ -117,7 +117,7 @@ object OrderBook {
 
   private def formatSide(side: Side) =
     side
-      .map { case (price, level) => s"$price:${level.map(lo => s""""${lo.order.id()}"""").mkString("[", ",", "]")}" }
+      .map { case (price, level) => s""""$price":${level.map(lo => s""""${lo.order.id()}"""").mkString("[", ",", "]")}""" }
       .mkString("{", ",", "}")
 
   val bidsOrdering: Ordering[Long] = (x: Long, y: Long) => -Ordering.Long.compare(x, y)
@@ -146,7 +146,7 @@ object OrderBook {
 
   def empty: OrderBook = new OrderBook(mutable.TreeMap.empty(bidsOrdering), mutable.TreeMap.empty(asksOrdering))
 
-  private def unapply(ob: OrderBook): (Map[Price, Level], Map[Price, Level]) = (ob.asks.toMap, ob.asks.toMap)
+  private def unapply(ob: OrderBook): (Map[Price, Level], Map[Price, Level]) = (ob.bids.toMap, ob.asks.toMap)
 
   private def transformSide(side: SideJson, expectedSide: OrderType): Side = {
     val bidMap = mutable.TreeMap.empty[Price, Level](bidsOrdering)
@@ -163,5 +163,5 @@ object OrderBook {
   }
 
   private def apply(bids: SideJson, asks: SideJson): OrderBook =
-    new OrderBook(transformSide(bids, OrderType.BUY), transformSide(asks, OrderType.BUY))
+    new OrderBook(transformSide(bids, OrderType.BUY), transformSide(asks, OrderType.SELL))
 }

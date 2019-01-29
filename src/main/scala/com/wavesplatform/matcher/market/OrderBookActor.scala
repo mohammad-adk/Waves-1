@@ -71,6 +71,7 @@ class OrderBookActor(owner: ActorRef,
 
     case SaveSnapshot(globalEventNr) =>
       if (savingSnapshot.isEmpty) {
+        log.debug(s"About to save snapshot $orderBook")
         saveSnapshotAt(globalEventNr)
         savingSnapshot = Some(globalEventNr)
       }
@@ -92,7 +93,6 @@ class OrderBookActor(owner: ActorRef,
               log.warn(s"""Can't create tx: $ex
                           |o1: (amount=${submitted.amount}, fee=${submitted.fee}): ${Json.prettyPrint(submitted.order.json())}
                           |o2: (amount=${counter.amount}, fee=${counter.fee}): ${Json.prettyPrint(counter.order.json())}""".stripMargin)
-              (None, None)
           }
         case Events.OrderCanceled(order, unmatchable) =>
           log.info(s"OrderCanceled(${order.order.idStr()}, system=$unmatchable)")

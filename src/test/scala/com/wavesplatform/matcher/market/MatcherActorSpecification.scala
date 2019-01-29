@@ -7,7 +7,6 @@ import akka.testkit.{ImplicitSender, TestActorRef, TestProbe}
 import com.wavesplatform.NTPTime
 import com.wavesplatform.account.PrivateKeyAccount
 import com.wavesplatform.matcher.MatcherTestData
-import com.wavesplatform.matcher.api.OrderAccepted
 import com.wavesplatform.matcher.market.MatcherActor.{GetMarkets, MarketData, SaveSnapshot}
 import com.wavesplatform.matcher.market.MatcherActorSpecification.FailAtStartActor
 import com.wavesplatform.matcher.market.OrderBookActor.OrderBookSnapshotUpdated
@@ -54,8 +53,6 @@ class MatcherActorSpecification
         .returns(None)
 
       actor ! wrap(order)
-      expectMsg(OrderAccepted(order))
-
       actor ! GetMarkets
 
       expectMsgPF() {
@@ -97,7 +94,6 @@ class MatcherActorSpecification
 
         actor ! wrap(order1)
         actor ! wrap(order2)
-        receiveN(2)
 
         ob.get()(pair1) shouldBe 'right
         ob.get()(pair2) shouldBe 'right
