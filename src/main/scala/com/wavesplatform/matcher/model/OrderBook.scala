@@ -22,7 +22,13 @@ class OrderBook private (private[OrderBook] val bids: OrderBook.Side, private[Or
       lo         <- level
     } yield lo
 
-  def cancel(orderId: ByteStr): Option[OrderCanceled] = ???
+  def cancel(orderId: ByteStr): Option[OrderCanceled] = {
+    allOrders.collectFirst {
+      case lo if lo.order.id() == orderId =>
+        (if (lo.order.orderType == OrderType.BUY) bids else asks).remove(lo.order.price, lo.order.id())
+        OrderCanceled(lo, false)
+    }
+  }
 
   def cancelAll(): Seq[OrderCanceled] = {
     val canceledOrders = allOrders.map(lo => OrderCanceled(lo, unmatchable = false)).toSeq
@@ -66,6 +72,14 @@ object OrderBook {
       side += (price -> (newBestAsk +: level.tail))
     }
 
+    def remove(price: Price, orderId: ByteStr): LimitOrder = {
+      require(side.get(price).exists(_.nonEmpty), s"Order $orderId not found for price $price")
+      val (toRemove, toKeep) = side(price).partition(_.order.id() == orderId)
+      require(toRemove.size == 1, s"Order $orderId not found")
+      side += price -> toKeep
+      toRemove.head
+    }
+
     def aggregated: Iterable[LevelAgg] =
       for {
         (p, l) <- side.view
@@ -93,9 +107,12 @@ object OrderBook {
       } else {
         val x = OrderExecuted(submitted, counter, eventTs)
 
+        println(s"\n\t$x, xa=${x.executedAmount}, ${x.submittedRemaining}, submitted.xa=${submitted
+          .executionAmount(counter)}, counter.price=${counter.price}, ${x.counterRemaining}\n")
+
         require(
           !(x.counterRemaining.isValid && x.submittedRemaining.isValid),
-          s"Either submitted ${submitted.order.id()} or counter ${counter.order.id()} must match completely"
+          s"At least one order must match completely. Remaining submitted: ${x.submittedRemaining}, remaining counter: ${x.counterRemaining}"
         )
 
         val newEvents = x +: prevEvents

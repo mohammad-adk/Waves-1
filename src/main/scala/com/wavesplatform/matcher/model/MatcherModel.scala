@@ -58,6 +58,7 @@ case class BuyLimitOrder(amount: Long, fee: Long, order: Order) extends LimitOrd
   def getReceiveAmount: Long                          = amountOfAmountAsset
   def getSpendAmount: Long                            = amountOfPriceAsset
   def getRawSpendAmount: Long                         = amountOfPriceAsset
+  override def toString                               = s"BuyLimitOrder($amount,$minAmountOfAmountAsset,$fee,${order.id()},$isValid)"
 }
 
 case class SellLimitOrder(amount: Long, fee: Long, order: Order) extends LimitOrder {
@@ -66,6 +67,7 @@ case class SellLimitOrder(amount: Long, fee: Long, order: Order) extends LimitOr
   def getReceiveAmount: Long                           = amountOfPriceAsset
   def getSpendAmount: Long                             = amountOfAmountAsset
   def getRawSpendAmount: Long                          = amount
+  override def toString                                = s"SellLimitOrder($amount,$minAmountOfAmountAsset,$fee,${order.id()},$isValid)"
 }
 
 object LimitOrder {

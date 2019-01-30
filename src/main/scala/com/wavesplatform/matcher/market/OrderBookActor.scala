@@ -109,7 +109,7 @@ class OrderBookActor(owner: ActorRef,
     cancelTimer.measure(orderBook.cancel(orderIdToCancel) match {
       case Some(cancelEvent) =>
         processEvents(Seq(cancelEvent))
-        sender() ! cancelEvent
+        sender() ! OrderCanceled(orderIdToCancel)
       case None =>
         log.warn(s"Error cancelling $orderIdToCancel: order not found")
         sender() ! OrderCancelRejected("Order not found")
